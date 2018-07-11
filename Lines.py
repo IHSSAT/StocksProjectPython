@@ -17,7 +17,22 @@ class Line(Point):
         self.lineType = None
         self.startLoc = None
         self.endLoc = None
+        self.bouncePoints = [] #List of points that bounce off trendline
+        self.overPoints = [] #List of points that bounce or go under/over trendline.
+        self.significance = None #Make calculations to assign rating of significance to each trendline.
 
+        if len(bouncePoints) == 0 or len(overPoints) ==0 :
+            self.bouncePct = None
+        else:
+            self.bouncePct = len(self.bouncePoints)/len(self.overPoints)
+            
+        if self.startLoc == None or self.endLoc == None:
+            self.timeDist = None
+        else: 
+            self.timeDist = self.endLoc - self.startLoc
+            
+
+        
     def slopeInt(self, mslope, yintercept):
         self.slope = mslope
         self.yint = yintercept
