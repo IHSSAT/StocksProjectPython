@@ -17,11 +17,12 @@ class Line(Point):
         self.lineType = None
         self.startLoc = None
         self.endLoc = None
+        self.time = None
         self.bouncePoints = [] #List of points that bounce off trendline
         self.overPoints = [] #List of points that bounce or go under/over trendline.
         self.significance = None #Make calculations to assign rating of significance to each trendline.
 
-        if len(bouncePoints) == 0 or len(overPoints) ==0 :
+        if len(self.bouncePoints) == 0 or len(self.overPoints) ==0 :
             self.bouncePct = None
         else:
             self.bouncePct = len(self.bouncePoints)/len(self.overPoints)
@@ -87,3 +88,15 @@ class Line(Point):
         else:
             return None
         # Guidance: 2 - 3 percent seems acceptable
+
+    def twoLineAngle(line1, line2): #may not do what is supposed to, change later
+        try:
+            m1 = line1.slope
+            m2 = line2.slope
+            ans = math.degrees(math.atan((m1 - m2)/(1 + m1*m2)))
+            if ans>0:
+                return ans
+            else:
+                return ans+180
+        except:
+            return 90

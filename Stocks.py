@@ -3,6 +3,7 @@ from Lines import Point
 from googlefinance.client import get_price_data, get_prices_data, get_prices_time_data
 import Stocks
 import time
+import math
 
 def makeTrendLines(locations, prices):
     if len(locations) != len(prices):
@@ -26,35 +27,70 @@ def makeTrendLines(locations, prices):
     return trendLines
 
 
-def trendLineIntersect(line, completeStockData, threshhold = 0.93): #returns True is Trendline does NOT intersect with graph
+def trendLineIntersect(line, completeStockData, threshhold = 0.025, time = 10): #returns True if Trendline does NOT intersect with graph
     loc = line.startLoc
     above = 0
     below = 0
     for stock in completeStockData[loc:]:
-        if stock > line.findY(completeStockData.index(stock)):
+        if stock > line.findY(completeStockData.index(stock)): #y value of line at the x value of the stock
             above = above + 1
         elif stock < line.findY(completeStockData.index(stock)):
             below = below + 1
-    if (above / (above + below)) >= threshhold or (below / (above + below)) >= threshhold:
+    if (above / (above + below)) >= 0.5:
+        for stock in completeStockData[loc:len(completeStockData)-time-1]:
+            if stock < (1-threshhold)*line.findY(completeStockData.index(stock)):
+                return False
+        line.lineType = 'support'
+        line.time = time
+        return True
+    elif (above / (above + below)) < 0.5:
+        for stock in completeStockData[loc:len(completeStockData)-time-1]:
+            if stock > (1+threshhold)*line.findY(completeStockData.index(stock)):
+                return False
+        line.lineType = 'resistance'
+        line.time = time
+        return True
+    else:
+        return "no data"
+
+def signal(line, completeStockData, angle, time1 = None, threshhold = 0.025):
+    if time1 == None:
+        time = line.time
+    else:
+        time = time1
+    # if stock crosses over trendline and exceeds threshhold, set variable "crossover" to True. Else, false.
+    if len(completeStockData)>= time:
+        data = completeStockData[len(completeStockData)-time:]
+    else:
+        data = completeStockData
+
+    # Calculate angle
+    total = 0
+    for stock in data:
+        total = total + stock
+    slope = total/time
+    point = Point(math.floor(time/2),data[math.floor(time/2)])
+    stockLine = Line()
+    stockLine.pointSlope(point, slope)
+
+
+def removeLinesInt(trendLines, completeStockData, threshhold = 0.025): #takes trendlines and removes those that intersect w/ graph
+    total = []
+    for line in trendLines:
+        if Stocks.trendLineIntersect(line, completeStockData, threshhold):
+            total.append(line)
+    return total
+
+def listinList(list1,inList2):
+    x=0
+    for element in list1:
+        if element in inList2:
+            x = x+1
+            inList2.remove(element)
+    if x==len(list1):
         return True
     else:
         return False
-
-
-def removeLinesInt(trendLines, completeStockData, threshhold = 0.93): #takes trendlines and removes those that intersect w/ graph
-    final = []
-    for trendLine in trendLines:
-        loc = trendLine.startLoc
-        above = 0
-        below = 0
-        for stock in completeStockData[loc:]:
-            if stock > trendLine.findY(completeStockData.index(stock)):
-                above = above + 1
-            elif stock < trendLine.findY(completeStockData.index(stock)):
-                below = below + 1
-        if (above / (above + below)) >= threshhold or (below / (above + below)) >= threshhold:
-            final.append(trendLine)
-    return final
 
 def filterLines(locations, prices, trendLines, dist = 2.5):
     if len(locations) != len(prices):
@@ -83,9 +119,9 @@ def filterLines(locations, prices, trendLines, dist = 2.5):
     while z<len(trendLines)-1:
         x = trendLines[z].bouncePoints
         for trendline in trendLines[z+1:]:
-            if x in trendline.bouncePoints: #fix
-                trendLines.remove(trendlines[z])
-                
+            if Stocks.listinList(x, trendline.bouncePoints):
+                trendLines.remove(trendLines[z])
+
             
 def findExtrema(length, data):
     ## actually works!
