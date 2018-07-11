@@ -1,0 +1,19 @@
+Notes: consider expanding max/min def to more than 7 day span, maybe 10/15?
+       consider making a formula
+       consider scanning for patterns before huge runs, commonalities. Perhaps can weed out patterns or formations
+		that don't go anywhere.
+
+Steps:
+1) Find/make intersection w/ stock plot and w/ line method/function.
+	a) intersection with stock plot will be buy/sell trigger
+	b) returns boolean
+2) Calculate slopes and eqtns for any two points
+	a) if eqtn intersects with stock plot AT TIME AFTER X2 then throw out
+	b) else add to list
+3) Make a function/method that combines any trendlines that are similar
+	a) similarity defined as Y difference at same X
+4) Make a function/method that finds any intersection w/trendlines in last 5 days.
+	a) consider filtering out stocks that cross the trendline with a low slope. F
+	   find best fit linear regression for last 10 days and slope must exceed some number.
+5) Make a function/method screener.
+	a) Scans for different patterns and stuff.
