@@ -18,15 +18,15 @@ def makeTrendLines(locations, prices):
         idx = points.index(point)
         while idx < (len(points) - 1):
             line1 = Line()
-            line1.twoPoint(point, poin
-            idx = idx + 1
-    return trendLines
-
-ts[idx + 1])
+            line1.twoPoint(point, points[idx + 1])
             line1.startLoc = point.x
             line1.endLoc = points[idx+1].x
             trendLines.append(line1)
-def trendLineIntersect(line, completeStockData, threshhold = 0.975):
+            idx = idx + 1
+    return trendLines
+
+
+def trendLineIntersect(line, completeStockData, threshhold = 0.93): #returns True is Trendline does NOT intersect with graph
     loc = line.startLoc
     above = 0
     below = 0
@@ -41,7 +41,7 @@ def trendLineIntersect(line, completeStockData, threshhold = 0.975):
         return False
 
 
-def filterTrendLines(trendLines, completeStockData, threshhold = 0.975):
+def removeLinesInt(trendLines, completeStockData, threshhold = 0.93): #takes trendlines and removes those that intersect w/ graph
     final = []
     for trendLine in trendLines:
         loc = trendLine.startLoc
@@ -56,7 +56,37 @@ def filterTrendLines(trendLines, completeStockData, threshhold = 0.975):
             final.append(trendLine)
     return final
 
-
+def filterLines(locations, prices, trendLines, dist = 2.5):
+    if len(locations) != len(prices):
+        return "wrong"
+    z = 0
+    points = []
+    while z < len(locations):
+        a = Point(locations[z], prices[z])
+        points.append(a)
+        z = z + 1
+    for trendLine in trendLines:
+        startLoc = trendLine.startLoc
+        startIdx = locations.index(startLoc)
+        for point in points[startIdx:]:
+            distance = trendLine.linePointDist(point)
+            if abs(distance) < dist:
+                trendLine.bouncePoints.append(point)
+                trendLine.endLoc = point.x
+        endLoc = trendLine.endLoc
+        endIdx = locations.index(endLoc)
+        for point in points[startIdx:(endIdx+1)]:
+            trendLine.overPoints.append(point)
+        # label line (line type)
+    # remove "duplicate" lines
+    z = 0
+    while z<len(trendLines)-1:
+        x = trendLines[z].bouncePoints
+        for trendline in trendLines[z+1:]:
+            if x in trendline.bouncePoints: #fix
+                trendLines.remove(trendlines[z])
+                
+            
 def findExtrema(length, data):
     ## actually works!
     x = 1
@@ -113,6 +143,10 @@ def scan(indexFile, index):
             data = get_price_data(param1)
             dsclose = data['Close'].tolist()
             # Do processing here
+            #
+            #
+            #
+            #
             xx = xx + 1
         except:
             print('sleeping two minutes...')
