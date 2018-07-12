@@ -1,0 +1,1 @@
+#Indicators like ATR, SMA, RSI, etc. Look for on internet before writing own.

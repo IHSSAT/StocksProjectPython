@@ -54,24 +54,42 @@ def trendLineIntersect(line, completeStockData, threshhold = 0.025, time = 10): 
         return "no data"
 
 def signal(line, completeStockData, angle, time1 = None, threshhold = 0.025):
-    if time1 == None:
-        time = line.time
+    if time1 is None and line.time is None:
+        time = 10
+    elif time1 is not None:
+        time = int(time1)
     else:
-        time = time1
-    # if stock crosses over trendline and exceeds threshhold, set variable "crossover" to True. Else, false.
+        time = line.time
+
     if len(completeStockData)>= time:
         data = completeStockData[len(completeStockData)-time:]
     else:
         data = completeStockData
+    # if stock crosses over trendline and exceeds threshhold, set variable "crossover" to True. Else, false.
+    crossover = False
+    if line.lineType == 'support':
+        minimum = min(data)
+        location = completeStockData.index(minimum)
+        if minimum < (1 - threshhold)*line.findY(location):
+            crossover = True
+    elif line.lineType == 'resistance':
+        maximum = max(data)
+        location = completeStockData.index(maximum)
+        if maximum > (1 + threshhold) * line.findY(location):
+            crossover = True
+    else:
+        crossover = "lineTypes are not set; please set thanks or they are messed up pls fix"
+    return crossover #add in angle feature later
 
-    # Calculate angle
+    # Calculate angle; should investigate angle dynamics and average angles first. Do a statistical scan of the market.
+    """
     total = 0
     for stock in data:
         total = total + stock
     slope = total/time
     point = Point(math.floor(time/2),data[math.floor(time/2)])
     stockLine = Line()
-    stockLine.pointSlope(point, slope)
+    stockLine.pointSlope(point, slope)"""
 
 
 def removeLinesInt(trendLines, completeStockData, threshhold = 0.025): #takes trendlines and removes those that intersect w/ graph

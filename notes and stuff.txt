@@ -1,3 +1,5 @@
+MAKE SURE TO BUILD IN PROTECTION FOR "BORKEN STOCKS"
+
 Notes: consider expanding max/min def to more than 7 day span, maybe 10/15?
        consider making a formula
        consider scanning for patterns before huge runs, commonalities. Perhaps can weed out patterns or formations
@@ -17,3 +19,5 @@ Steps:
 	   find best fit linear regression for last 10 days and slope must exceed some number.
 5) Make a function/method screener.
 	a) Scans for different patterns and stuff.
+	b) MAKE SURE TO BUILD IN PROTECTION FOR "BORKEN STOCKS"
+
