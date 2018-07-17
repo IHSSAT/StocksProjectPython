@@ -3,9 +3,10 @@
 # https://github.com/bukosabino/ta/blob/master/ta/trend.py
 
 
-#Trend Indicators
+# Trend Indicators
 import pandas as pd
 import numpy as np
+
 def macd(close, n_fast=12, n_slow=26, fillna=False):
     """Moving Average Convergence Divergence (MACD)
     Is a trend-following momentum indicator that shows the relationship between
@@ -25,6 +26,7 @@ def macd(close, n_fast=12, n_slow=26, fillna=False):
     if fillna:
         macd = macd.fillna(0)
     return pd.Series(macd, name='MACD_%d_%d' % (n_fast, n_slow))
+
 
 def macd_signal(close, n_fast=12, n_slow=26, n_sign=9, fillna=False):
     """Moving Average Convergence Divergence (MACD Signal)
@@ -46,7 +48,8 @@ def macd_signal(close, n_fast=12, n_slow=26, n_sign=9, fillna=False):
     if fillna:
         macd_signal = macd_signal.fillna(0)
     return pd.Series(macd_signal, name='MACD_sign')
-  
+
+
 def macd_diff(close, n_fast=12, n_slow=26, n_sign=9, fillna=False):
     """Moving Average Convergence Divergence (MACD Diff)
     Shows the relationship between MACD and MACD Signal.
@@ -69,6 +72,7 @@ def macd_diff(close, n_fast=12, n_slow=26, n_sign=9, fillna=False):
         macd_diff = macd_diff.fillna(0)
     return pd.Series(macd_diff, name='MACD_diff')
 
+
 def ema(close, n_fast=12, fillna=False):
     """EMA
     Short Period Exponential Moving Average
@@ -83,6 +87,7 @@ def ema(close, n_fast=12, fillna=False):
     if fillna:
         emafast = emafast.fillna(method='backfill')
     return pd.Series(emafast, name='ema')
+
 
 def adx(high, low, close, n=14, fillna=False):
     """Average Directional Movement Index (ADX)Positive and negative directional movement
@@ -122,12 +127,13 @@ def adx(high, low, close, n=14, fillna=False):
     dip = 100 * pos.rolling(n).sum() / trs
     din = 100 * neg.rolling(n).sum() / trs
 
-    dx = 100 * np.abs((dip - din)/(dip + din))
+    dx = 100 * np.abs((dip - din) / (dip + din))
     adx = dx.ewm(n).mean()
 
     if fillna:
         adx = adx.fillna(40)
-    return pd.Series(adx, name='adx')  
+    return pd.Series(adx, name='adx')
+
 
 def adx_pos(high, low, close, n=14, fillna=False):
     """Average Directional Movement Index Positive (ADX)
@@ -205,7 +211,9 @@ def adx_neg(high, low, close, n=14, fillna=False):
     if fillna:
         din = din.fillna(20)
     return pd.Series(din, name='adx_neg')
- def adx_indicator(high, low, close, n=14, fillna=False):
+
+
+def adx_indicator(high, low, close, n=14, fillna=False):
     """Average Directional Movement Index Indicator (ADX)
     Returns 1, if Plus Directional Indicator (+DI) is higher than Minus
     Directional Indicator (-DI). Else, return 0.
@@ -245,6 +253,7 @@ def adx_neg(high, low, close, n=14, fillna=False):
     if fillna:
         adx_ind = adx_ind.fillna(0)
     return pd.Series(adx_ind, name='adx_ind')
+
 
 def vortex_indicator_pos(high, low, close, n=14, fillna=False):
     """Vortex Indicator (VI)
@@ -312,14 +321,14 @@ def trix(close, n=15, fillna=False):
     Returns:
         pandas.Series: New feature generated.
     """
-    ema1 = close.ewm(span=n, min_periods=n-1).mean()
-    ema2 = ema1.ewm(span=n, min_periods=n-1).mean()
-    ema3 = ema2.ewm(span=n, min_periods=n-1).mean()
+    ema1 = close.ewm(span=n, min_periods=n - 1).mean()
+    ema2 = ema1.ewm(span=n, min_periods=n - 1).mean()
+    ema3 = ema2.ewm(span=n, min_periods=n - 1).mean()
     trix = (ema3 - ema3.shift(1)) / ema3.shift(1)
     trix *= 100
     if fillna:
         trix = trix.fillna(0)
-    return pd.Series(trix, name='trix_'+str(n))
+    return pd.Series(trix, name='trix_' + str(n))
 
 
 def mass_index(high, low, n=9, n2=25, fillna=False):
@@ -338,13 +347,13 @@ def mass_index(high, low, n=9, n2=25, fillna=False):
         pandas.Series: New feature generated.
     """
     amplitude = high - low
-    ema1 = amplitude.ewm(span=n, min_periods=n-1).mean()
-    ema2 = ema1.ewm(span=n, min_periods=n-1).mean()
-    mass = ema1/ema2
+    ema1 = amplitude.ewm(span=n, min_periods=n - 1).mean()
+    ema2 = ema1.ewm(span=n, min_periods=n - 1).mean()
+    mass = ema1 / ema2
     mass = mass.rolling(n2).sum()
     if fillna:
         mass = mass.fillna(n2)
-    return pd.Series(mass, name='mass_index_'+str(n))
+    return pd.Series(mass, name='mass_index_' + str(n))
 
 
 def cci(high, low, close, n=20, c=0.015, fillna=False):
@@ -365,9 +374,9 @@ def cci(high, low, close, n=20, c=0.015, fillna=False):
     Returns:
         pandas.Series: New feature generated.
     """
-    pp = (high+low+close)/3
-    cci = (pp-pp.rolling(n).mean())/pp.rolling(n).std()
-    cci = 1/c * cci
+    pp = (high + low + close) / 3
+    cci = (pp - pp.rolling(n).mean()) / pp.rolling(n).std()
+    cci = 1 / c * cci
     if fillna:
         cci = cci.fillna(0)
     return pd.Series(cci, name='cci')
@@ -385,10 +394,10 @@ def dpo(close, n=20, fillna=False):
     Returns:
         pandas.Series: New feature generated.
     """
-    dpo = close.shift(int(n/(2+1))) - close.rolling(n).mean()
+    dpo = close.shift(int(n / (2 + 1))) - close.rolling(n).mean()
     if fillna:
         dpo = dpo.fillna(0)
-    return pd.Series(dpo, name='dpo_'+str(n))
+    return pd.Series(dpo, name='dpo_' + str(n))
 
 
 def kst(close, r1=10, r2=15, r3=20, r4=30, n1=10, n2=10, n3=10, n4=15, fillna=False):
@@ -416,7 +425,7 @@ def kst(close, r1=10, r2=15, r3=20, r4=30, n1=10, n2=10, n3=10, n4=15, fillna=Fa
     rocma2 = ((close - close.shift(r2)) / close.shift(r2)).rolling(n2).mean()
     rocma3 = ((close - close.shift(r3)) / close.shift(r3)).rolling(n3).mean()
     rocma4 = ((close - close.shift(r4)) / close.shift(r4)).rolling(n4).mean()
-    kst = 100*(rocma1 + 2*rocma2 + 3*rocma3 + 4*rocma4)
+    kst = 100 * (rocma1 + 2 * rocma2 + 3 * rocma3 + 4 * rocma4)
     if fillna:
         kst = kst.fillna(0)
     return pd.Series(kst, name='kst')
@@ -448,7 +457,7 @@ def kst_sig(close, r1=10, r2=15, r3=20, r4=30, n1=10, n2=10, n3=10, n4=15, nsig=
     rocma2 = ((close - close.shift(r2)) / close.shift(r2)).rolling(n2).mean()
     rocma3 = ((close - close.shift(r3)) / close.shift(r3)).rolling(n3).mean()
     rocma4 = ((close - close.shift(r4)) / close.shift(r4)).rolling(n4).mean()
-    kst = 100*(rocma1 + 2*rocma2 + 3*rocma3 + 4*rocma4)
+    kst = 100 * (rocma1 + 2 * rocma2 + 3 * rocma3 + 4 * rocma4)
     kst_sig = kst.rolling(nsig).mean()
     if fillna:
         kst_sig = kst_sig.fillna(0)
@@ -475,7 +484,7 @@ def ichimoku_a(high, low, n1=9, n2=26, fillna=False):
     spana = spana.shift(n2)
     if fillna:
         spana = spana.fillna(method='backfill')
-    return pd.Series(spana, name='ichimoku_a_'+str(n2))
+    return pd.Series(spana, name='ichimoku_a_' + str(n2))
 
 
 def ichimoku_b(high, low, n2=26, n3=52, fillna=False):
@@ -495,8 +504,10 @@ def ichimoku_b(high, low, n2=26, n3=52, fillna=False):
     spanb = spanb.shift(n2)
     if fillna:
         spanb = spanb.fillna(method='backfill')
-    return pd.Series(spanb, name='ichimoku_b_'+str(n2))
-#momentum
+    return pd.Series(spanb, name='ichimoku_b_' + str(n2))
+
+
+# momentum
 def rsi(close, n=14, fillna=False):
     """Relative Strength Index (RSI)
     Compares the magnitude of recent gains and losses over a specified time
@@ -514,13 +525,13 @@ def rsi(close, n=14, fillna=False):
     diff = close.diff()
     which_dn = diff < 0
 
-    up, dn = diff, diff*0
+    up, dn = diff, diff * 0
     up[which_dn], dn[which_dn] = 0, -up[which_dn]
 
     emaup = up.ewm(n).mean()
     emadn = dn.ewm(n).mean()
 
-    rsi = 100 * emaup/(emaup + emadn)
+    rsi = 100 * emaup / (emaup + emadn)
     if fillna:
         rsi = rsi.fillna(50)
     return pd.Series(rsi, name='rsi')
@@ -571,7 +582,7 @@ def money_flow_index(high, low, close, volume, n=14, fillna=False):
     mr = (100 - (100 / (1 + mr)))
     if fillna:
         mr = mr.fillna(50)
-    return pd.Series(mr, name='mfi_'+str(n))
+    return pd.Series(mr, name='mfi_' + str(n))
 
 
 def tsi(close, r=25, s=13, fillna=False):
@@ -589,13 +600,14 @@ def tsi(close, r=25, s=13, fillna=False):
     m = close - close.shift(1)
     m1 = m.ewm(r).mean().ewm(s).mean()
     m2 = abs(m).ewm(r).mean().ewm(s).mean()
-    tsi = m1/m2
+    tsi = m1 / m2
     tsi *= 100
     if fillna:
         tsi = tsi.fillna(0)
     return pd.Series(tsi, name='tsi')
 
-#Volatility
+
+# Volatility
 def average_true_range(high, low, close, n=14, fillna=False):
     """Average True Range (ATR)
     The indicator provide an indication of the degree of price volatility.
@@ -648,7 +660,7 @@ def bollinger_hband(close, n=20, ndev=2, fillna=False):
     """
     mavg = close.rolling(n).mean()
     mstd = close.rolling(n).std()
-    hband = mavg + ndev*mstd
+    hband = mavg + ndev * mstd
     if fillna:
         hband = hband.fillna(method='backfill')
     return pd.Series(hband, name='hband')
@@ -668,7 +680,7 @@ def bollinger_lband(close, n=20, ndev=2, fillna=False):
     """
     mavg = close.rolling(n).mean()
     mstd = close.rolling(n).std()
-    lband = mavg - ndev*mstd
+    lband = mavg - ndev * mstd
     if fillna:
         lband = lband.fillna(method='backfill')
     return pd.Series(lband, name='lband')
@@ -688,7 +700,7 @@ def bollinger_hband_indicator(close, n=20, ndev=2, fillna=False):
     df = pd.DataFrame([close]).transpose()
     mavg = close.rolling(n).mean()
     mstd = close.rolling(n).std()
-    hband = mavg + ndev*mstd
+    hband = mavg + ndev * mstd
     df['hband'] = 0.0
     df.loc[close > hband, 'hband'] = 1.0
     hband = df['hband']
@@ -711,7 +723,7 @@ def bollinger_lband_indicator(close, n=20, ndev=2, fillna=False):
     df = pd.DataFrame([close]).transpose()
     mavg = close.rolling(n).mean()
     mstd = close.rolling(n).std()
-    lband = mavg - ndev*mstd
+    lband = mavg - ndev * mstd
     df['lband'] = 0.0
     df.loc[close < lband, 'lband'] = 1.0
     lband = df['lband']
@@ -751,7 +763,7 @@ def keltner_channel_hband(high, low, close, n=10, fillna=False):
     Returns:
         pandas.Series: New feature generated.
     """
-    tp = ((4*high) - (2*low) + close) / 3.0
+    tp = ((4 * high) - (2 * low) + close) / 3.0
     tp = tp.rolling(n).mean()
     if fillna:
         tp = tp.fillna(method='backfill')
@@ -770,7 +782,7 @@ def keltner_channel_lband(high, low, close, n=10, fillna=False):
     Returns:
         pandas.Series: New feature generated.
     """
-    tp = ((-2*high) + (4*low) + close) / 3.0
+    tp = ((-2 * high) + (4 * low) + close) / 3.0
     tp = tp.rolling(n).mean()
     if fillna:
         tp = tp.fillna(method='backfill')
@@ -792,7 +804,7 @@ def keltner_channel_hband_indicator(high, low, close, n=10, fillna=False):
     """
     df = pd.DataFrame([close]).transpose()
     df['hband'] = 0.0
-    hband = ((4*high) - (2*low) + close) / 3.0
+    hband = ((4 * high) - (2 * low) + close) / 3.0
     df.loc[close > hband, 'hband'] = 1.0
     hband = df['hband']
     if fillna:
@@ -814,7 +826,7 @@ def keltner_channel_lband_indicator(high, low, close, n=10, fillna=False):
     """
     df = pd.DataFrame([close]).transpose()
     df['lband'] = 0.0
-    lband = ((-2*high) + (4*low) + close) / 3.0
+    lband = ((-2 * high) + (4 * low) + close) / 3.0
     df.loc[close < lband, 'lband'] = 1.0
     lband = df['lband']
     if fillna:
@@ -894,8 +906,10 @@ def donchian_channel_lband_indicator(close, n=20, fillna=False):
         lband = lband.fillna(0)
     return pd.Series(lband, name='dcilband')
 
-  #Volume
-  def acc_dist_index(high, low, close, volume, fillna=False):
+    # Volume
+
+
+def acc_dist_index(high, low, close, volume, fillna=False):
     """Accumulation/Distribution Index (ADI)
     Acting as leading indicator of price movements.
     https://en.wikipedia.org/wiki/Accumulation/distribution_index
@@ -909,7 +923,7 @@ def donchian_channel_lband_indicator(close, n=20, fillna=False):
         pandas.Series: New feature generated.
     """
     clv = ((close - low) - (high - close)) / (high - low)
-    clv = clv.fillna(0.0) # float division by zero
+    clv = clv.fillna(0.0)  # float division by zero
     ad = clv * volume
     ad = ad + ad.shift(1)
     if fillna:
@@ -984,7 +998,7 @@ def chaikin_money_flow(high, low, close, volume, n=20, fillna=False):
         pandas.Series: New feature generated.
     """
     mfv = ((close - low) - (high - close)) / (high - low)
-    mfv = mfv.fillna(0.0) # float division by zero
+    mfv = mfv.fillna(0.0)  # float division by zero
     mfv *= volume
     cmf = mfv.rolling(n).sum() / volume.rolling(n).sum()
     if fillna:
@@ -1009,7 +1023,7 @@ def force_index(close, volume, n=2, fillna=False):
     fi = close.diff(n) * volume.diff(n)
     if fillna:
         fi = fi.fillna(0)
-    return pd.Series(fi, name='fi_'+str(n))
+    return pd.Series(fi, name='fi_' + str(n))
 
 
 def ease_of_movement(high, low, close, volume, n=20, fillna=False):
@@ -1054,8 +1068,10 @@ def volume_price_trend(close, volume, fillna=False):
         vpt = vpt.fillna(0)
     return pd.Series(vpt, name='vpt')
 
-  #Misc...
-  def daily_return(close, fillna=False):
+    # Misc...
+
+
+def daily_return(close, fillna=False):
     """Daily Return (DR)
     Args:
         close(pandas.Series): dataset 'Close' column.
@@ -1083,4 +1099,3 @@ def cumulative_return(close, fillna=False):
     if fillna:
         cr = cr.fillna(method='backfill')
     return pd.Series(cr, name='cum_ret')
-

@@ -1,5 +1,6 @@
 import math
-
+import matplotlib.pyplot as plt
+import numpy as np
 
 class Point:
     def __init__(self, a=None, b=None):
@@ -18,14 +19,14 @@ class Line(Point):
         self.startLoc = None
         self.endLoc = None
         self.time = None
-        self.bouncePoints = [] #List of points that bounce off trendline
+        self.bouncePt = [] #List of points that bounce off trendline
         self.overPoints = [] #List of points that bounce or go under/over trendline.
         self.significance = None #Make calculations to assign rating of significance to each trendline.
 
-        if len(self.bouncePoints) == 0 or len(self.overPoints) ==0 :
+        if len(self.bouncePt) == 0 or len(self.overPoints) ==0 :
             self.bouncePct = None
         else:
-            self.bouncePct = len(self.bouncePoints)/len(self.overPoints)
+            self.bouncePct = len(self.bouncePt)/len(self.overPoints)
             
         if self.startLoc == None or self.endLoc == None:
             self.timeDist = None
@@ -67,6 +68,21 @@ class Line(Point):
         a = str(self.slope)
         b = str(self.yint)
         print("y = " + a + "x + " + b)
+    def plotLine(self, length = 0, show = False):
+        a = str(self.slope)
+        b = str(self.yint)
+        formula = a + "*x" + "+" + b
+        if length != 0:
+            x = np.array(range(length))
+        elif self.startLoc is not None and self.endLoc is not None:
+            x = np.array(range(self.startLoc,self.endLoc+1))
+        else:
+            x = np.array(range(100))
+        y = eval(formula)
+        plt.plot(x, y)
+        if show:
+            plt.show()
+
 
     def twoPointDist(point1, point2):
         x2 = point2.x
@@ -75,11 +91,12 @@ class Line(Point):
         y1 = point1.y
         return math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
 
+
     def linePointDist(self, point, arithmetic=False):
         x = point.x
         y = point.y
         y1 = self.findY(x)
-        pct = ((y - y1) / (y1)) * 100
+        pct = ((y - y1) / (y1))
         dst = y - y1
         if arithmetic == False:
             return pct

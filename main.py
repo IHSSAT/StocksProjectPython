@@ -4,10 +4,10 @@ from pprint import pprint
 from Lines import Line
 import Stocks
 param = {
-    'q': "A",  # Stock symbol (ex: "AAPL")
+    'q': "AAPL",  # Stock symbol (ex: "AAPL")
     'i': "86400",  # Interval size in seconds ("86400" = 1 day intervals)
-    'x': "NYSE",  # Stock exchange symbol on which stock is traded (ex: "NASD")
-    'p': "1M"  # Period (Ex: "1Y" = 1 year)
+    'x': "NASD",  # Stock exchange symbol on which stock is traded (ex: "NASD")
+    'p': "1Y"  # Period (Ex: "1Y" = 1 year)
 }
 data = get_price_data(param)
 dsclose = data['Close'].tolist()
@@ -17,6 +17,24 @@ dslow = data['Low'].tolist()
 dsvolume = data['Volume'].tolist()
 #print(data)
 
-line1 = Line(0, 3)
-line2 = Line(1, -2)
-print(Line.twoLineAngle(line1, line2))
+x = Stocks.findExtrema(4, data['Close'], "min")
+trendlines = Stocks.makeTrendLines(x)
+filteredlines = Stocks.removeLinesInt(trendlines, data['Close'], threshold=0.015)
+morefiltered = Stocks.filterLines(x,filteredlines, dist = 0.01)
+
+y = Stocks.findExtrema(4, data['Close'], "max")
+trendlines1 = Stocks.makeTrendLines(y)
+filteredlines1 = Stocks.removeLinesInt(trendlines1, data['Close'], threshold=0.015)
+morefiltered1 = Stocks.filterLines(y,filteredlines1, dist = 0.01)
+
+
+
+#print(len(morefiltered))
+plt.plot(dsclose)
+plt.scatter(list(x.index.values),x.tolist())
+
+for line in morefiltered:
+    line.plotLine()
+for line in morefiltered1:
+    line.plotLine()
+plt.show()

@@ -3,9 +3,13 @@ from Lines import Point
 from googlefinance.client import get_price_data, get_prices_data, get_prices_time_data
 import Stocks
 import time
+import pandas as pd
 import math
 
-def makeTrendLines(locations, prices):
+
+def makeTrendLines(pdSeries):
+    locations = list(pdSeries.index.values)
+    prices = pd.Series.tolist(pdSeries)
     if len(locations) != len(prices):
         return "wrong"
     z = 0
@@ -21,39 +25,44 @@ def makeTrendLines(locations, prices):
             line1 = Line()
             line1.twoPoint(point, points[idx + 1])
             line1.startLoc = point.x
-            line1.endLoc = points[idx+1].x
+            line1.endLoc = points[idx + 1].x
             trendLines.append(line1)
             idx = idx + 1
     return trendLines
 
 
-def trendLineIntersect(line, completeStockData, threshhold = 0.025, time = 10): #returns True if Trendline does NOT intersect with graph
+def trendLineIntersect(line, pdSeries, threshold=0.025, time=10):  # returns True if Trendline does NOT intersect with graph beyond threshold
+    completeStockData = pdSeries.tolist()
     loc = line.startLoc
     above = 0
     below = 0
-    for stock in completeStockData[loc:]:
-        if stock > line.findY(completeStockData.index(stock)): #y value of line at the x value of the stock
-            above = above + 1
-        elif stock < line.findY(completeStockData.index(stock)):
-            below = below + 1
-    if (above / (above + below)) >= 0.5:
-        for stock in completeStockData[loc:len(completeStockData)-time-1]:
-            if stock < (1-threshhold)*line.findY(completeStockData.index(stock)):
-                return False
-        line.lineType = 'support'
-        line.time = time
-        return True
-    elif (above / (above + below)) < 0.5:
-        for stock in completeStockData[loc:len(completeStockData)-time-1]:
-            if stock > (1+threshhold)*line.findY(completeStockData.index(stock)):
-                return False
-        line.lineType = 'resistance'
-        line.time = time
-        return True
+    if loc<len(completeStockData) - time - 1 - 1:
+        for stock in completeStockData[loc:len(completeStockData) - time - 1]:
+            if stock > line.findY(completeStockData.index(stock)):  # y value of line at the x value of the stock
+                above = above + 1
+            elif stock < line.findY(completeStockData.index(stock)):
+                below = below + 1
+        if (above / (above + below)) >= 0.5:
+            for stock in completeStockData[loc:len(completeStockData) - time - 1]:
+                if stock < (1 - threshold) * line.findY(completeStockData.index(stock)):
+                    return False
+            line.lineType = 'support'  # sets linetype
+            line.time = time  # sets amount of time before present day that line was tested for intersection with stock graph
+            return True
+        elif (above / (above + below)) < 0.5:
+            for stock in completeStockData[loc:len(completeStockData) - time - 1]:
+                if stock > (1 + threshold) * line.findY(completeStockData.index(stock)):
+                    return False
+            line.lineType = 'resistance'
+            line.time = time
+            return True
+        else:
+            return "no data"
     else:
-        return "no data"
+        return False
 
-def signal(line, completeStockData, angle, time1 = None, threshhold = 0.025):
+def signal(line, pdSeries, angle, time1=None, threshold=0.025):
+    completeStockData = pdSeries.tolist()
     if time1 is None and line.time is None:
         time = 10
     elif time1 is not None:
@@ -61,25 +70,27 @@ def signal(line, completeStockData, angle, time1 = None, threshhold = 0.025):
     else:
         time = line.time
 
-    if len(completeStockData)>= time:
-        data = completeStockData[len(completeStockData)-time:]
+    if len(completeStockData) >= time:
+        data = completeStockData[len(completeStockData) - time:]
     else:
         data = completeStockData
-    # if stock crosses over trendline and exceeds threshhold, set variable "crossover" to True. Else, false.
+    # if stock crosses over trendline and exceeds threshold, set variable "crossover" to True. Else, false.
     crossover = False
     if line.lineType == 'support':
         minimum = min(data)
         location = completeStockData.index(minimum)
-        if minimum < (1 - threshhold)*line.findY(location):
+        if minimum < (1 - threshold) * line.findY(location):
             crossover = True
     elif line.lineType == 'resistance':
         maximum = max(data)
         location = completeStockData.index(maximum)
-        if maximum > (1 + threshhold) * line.findY(location):
+        if maximum > (1 + threshold) * line.findY(location):
             crossover = True
     else:
         crossover = "lineTypes are not set; please set thanks or they are messed up pls fix"
-    return crossover #add in angle feature later
+    return crossover
+
+    # add in angle feature later
 
     # Calculate angle; should investigate angle dynamics and average angles first. Do a statistical scan of the market.
     """
@@ -92,27 +103,31 @@ def signal(line, completeStockData, angle, time1 = None, threshhold = 0.025):
     stockLine.pointSlope(point, slope)"""
 
 
-def removeLinesInt(trendLines, completeStockData, threshhold = 0.025): #takes trendlines and removes those that intersect w/ graph
+def removeLinesInt(trendLines, pdSeries, threshold=0.025):  # takes trendlines and removes those that intersect w/ graph
     total = []
     for line in trendLines:
-        if Stocks.trendLineIntersect(line, completeStockData, threshhold):
+        if Stocks.trendLineIntersect(line, pdSeries, threshold):
             total.append(line)
     return total
 
-def listinList(list1,inList2):
-    x=0
-    for element in list1:
-        if element in inList2:
-            x = x+1
-            inList2.remove(element)
-    if x==len(list1):
+
+def listinList(a, b):
+    if set(a).issubset(b):
         return True
     else:
         return False
 
-def filterLines(locations, prices, trendLines, dist = 2.5):
-    if len(locations) != len(prices):
-        return "wrong"
+def similarSlope(slope1, slope2, threshold = 0.05):
+    diff = abs((slope1-slope2)/slope1)
+    diff1 = abs((slope1-slope2)/slope2)
+    if diff<threshold or diff1<threshold:
+        return True
+    else:
+        return False
+
+def filterLines(pdSeriesExtrema, trendLines, dist=0.025):
+    locations = list(pdSeriesExtrema.index.values)
+    prices = pd.Series.tolist(pdSeriesExtrema)
     z = 0
     points = []
     while z < len(locations):
@@ -125,23 +140,26 @@ def filterLines(locations, prices, trendLines, dist = 2.5):
         for point in points[startIdx:]:
             distance = trendLine.linePointDist(point)
             if abs(distance) < dist:
-                trendLine.bouncePoints.append(point)
+                trendLine.bouncePt.append(point)
                 trendLine.endLoc = point.x
+        #print(len(trendLine.bouncePt))
         endLoc = trendLine.endLoc
         endIdx = locations.index(endLoc)
-        for point in points[startIdx:(endIdx+1)]:
+        for point in points[startIdx:(endIdx + 1)]:
             trendLine.overPoints.append(point)
-        # label line (line type)
     # remove "duplicate" lines
     z = 0
-    while z<len(trendLines)-1:
-        x = trendLines[z].bouncePoints
-        for trendline in trendLines[z+1:]:
-            if Stocks.listinList(x, trendline.bouncePoints):
-                trendLines.remove(trendLines[z])
+    while z < len(trendLines) - 1:
+        for trendline in trendLines:
+            if listinList(trendline.bouncePt, trendLines[z].bouncePt) and similarSlope(trendLines[z].slope, trendline.slope, 0.5):
+                trendLines.remove(trendline)
+        z = z+1
+    return trendLines
 
-            
-def findExtrema(length, data):
+
+def findExtrema(length, pdSeries, type):
+    data = pdSeries.tolist()
+    index = list(range(len(data)))
     ## actually works!
     x = 1
     numList = []
@@ -153,25 +171,31 @@ def findExtrema(length, data):
         numList.append(x)
         numList.append(-1 * x)
         x = x + 1
-    for price in data:
-        idx = data.index(price)
+    for idx in index:
         if idx < (len(data) - length):
             a = 0
             b = 0
             for num in numList:
-                if data[idx] >= data[idx + num]:
+                if data[idx] > data[idx + num]:
                     a = a + 1
-                if data[idx] <= data[idx + num]:
+                if data[idx] < data[idx + num]:
                     b = b + 1
             if a == len(numList):
                 locationmax.append(idx)
-                pricemax.append(price)
+                pricemax.append(data[idx])
             if b == len(numList):
                 locationmin.append(idx)
-                pricemin.append(price)
+                pricemin.append(data[idx])
         else:
             continue
-    return [locationmax, pricemax, locationmin, pricemin]
+    one = pd.Series(pricemax, locationmax, name="max")
+    two = pd.Series(pricemin, locationmin, name="min")
+    if type == "max":
+        return one
+    elif type == "min":
+        return two
+    else:
+        return "type not set"
 
 
 def createParam(stock, index, length="86400", period="1Y"):
@@ -205,4 +229,3 @@ def scan(indexFile, index):
         except:
             print('sleeping two minutes...')
             time.sleep(120)
-

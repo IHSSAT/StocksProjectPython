@@ -6,18 +6,32 @@ Notes: consider expanding max/min def to more than 7 day span, maybe 10/15?
 		that don't go anywhere.
 
 Steps:
-1) Find/make intersection w/ stock plot and w/ line method/function.
+1) Find/make intersection w/ stock plot and w/ line method/function. xxxxxxxxxxxxx
 	a) intersection with stock plot will be buy/sell trigger
 	b) returns boolean
-2) Calculate slopes and eqtns for any two points
+2) Calculate slopes and eqtns for any two points xxxxxxxxxx
 	a) if eqtn intersects with stock plot AT TIME AFTER X2 then throw out
 	b) else add to list
-3) Make a function/method that combines any trendlines that are similar
+3) Make a function/method that combines any trendlines that are similar xxxxxxxxxx
 	a) similarity defined as Y difference at same X
-4) Make a function/method that finds any intersection w/trendlines in last 5 days.
+4) Make a function/method that finds any intersection w/trendlines in last 5 days. xxxxxxxxxx
 	a) consider filtering out stocks that cross the trendline with a low slope. F
 	   find best fit linear regression for last 10 days and slope must exceed some number.
-5) Make a function/method screener.
+5) Consider making a class called "stocks"
+6) Make a custom strategy or indicator that does stuff
+7) Make volatility measure.
+    a) Find average percent change per day for a year for 1000 random stocks, 500 from both indices.
+    b) Find the median or mean % change/day for a year.
+    c) Adjust for volatility by multiplying a stock's gain/loss in statistical analysis by multiplying by (avg volatility/stock's volatility).
+    d)
+8) Do a statistical analysis:
+    a) First, scan the market for the average angle crossover over a trendline and see if it correlates with likelihood/degree of price change.
+    b) Isolate large rallies over a small period of time and examine what precedes them in the last month.
+    c) Find common patterns; consider making a "pattern" class and add it to the "stock" class, or by itself.
+    d) Scan a test market of around 100 stocks, find correlation between factors such as trendline "strength", angle, indicators, custom strategies, #of trendlines, etc.
+        A) REMEMBER TO CONTROL FOR VOLATILITY
+    e) make a rating system based on correlations for stocks. Find correlation between "rating" of stocks and of stock success, and likelihood of making money.
+10) Make a function/method screener.
 	a) Scans for different patterns and stuff.
 	b) MAKE SURE TO BUILD IN PROTECTION FOR "BORKEN STOCKS"
 
