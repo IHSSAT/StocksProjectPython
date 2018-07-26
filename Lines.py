@@ -15,7 +15,7 @@ class Line(Point):
     def __init__(self, mslope=1, yintercept=0):
         self.slope = mslope
         self.yint = yintercept
-        self.lineType = None
+        self.lineType = ["None"]
         self.startLoc = None
         self.endLoc = None
         self.time = None
@@ -106,9 +106,9 @@ class Line(Point):
             return None
         # Guidance: 2 - 3 percent seems acceptable
 
-    def twoLineAngle(line1, line2): #may not do what is supposed to, change later
+    def twoLineAngle(self, line2): #may not do what is supposed to, change later
         try:
-            m1 = line1.slope
+            m1 = self.slope
             m2 = line2.slope
             ans = math.degrees(math.atan((m1 - m2)/(1 + m1*m2)))
             if ans>0:
@@ -117,3 +117,8 @@ class Line(Point):
                 return ans+180
         except:
             return 90
+    def combineLines(self, line):
+        a = (self.slope + line.slope)/2
+        b = (self.yint + line.yint)/2
+        self.slope = 0
+        self.yint = b

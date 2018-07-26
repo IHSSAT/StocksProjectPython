@@ -46,14 +46,14 @@ def trendLineIntersect(line, pdSeries, threshold=0.025, time=10):  # returns Tru
             for stock in completeStockData[loc:len(completeStockData) - time - 1]:
                 if stock < (1 - threshold) * line.findY(completeStockData.index(stock)):
                     return False
-            line.lineType = 'support'  # sets linetype
+            line.lineType[0] = 'support'  # sets linetype
             line.time = time  # sets amount of time before present day that line was tested for intersection with stock graph
             return True
         elif (above / (above + below)) < 0.5:
             for stock in completeStockData[loc:len(completeStockData) - time - 1]:
                 if stock > (1 + threshold) * line.findY(completeStockData.index(stock)):
                     return False
-            line.lineType = 'resistance'
+            line.lineType[0] = 'resistance'
             line.time = time
             return True
         else:
@@ -76,12 +76,12 @@ def signal(line, pdSeries, angle, time1=None, threshold=0.025):
         data = completeStockData
     # if stock crosses over trendline and exceeds threshold, set variable "crossover" to True. Else, false.
     crossover = False
-    if line.lineType == 'support':
+    if line.lineType[0] == 'support':
         minimum = min(data)
         location = completeStockData.index(minimum)
         if minimum < (1 - threshold) * line.findY(location):
             crossover = True
-    elif line.lineType == 'resistance':
+    elif line.lineType[0] == 'resistance':
         maximum = max(data)
         location = completeStockData.index(maximum)
         if maximum > (1 + threshold) * line.findY(location):
@@ -152,7 +152,14 @@ def filterLines(pdSeriesExtrema, trendLines, dist=0.025):
     while z < len(trendLines) - 1:
         for trendline in trendLines:
             if listinList(trendline.bouncePt, trendLines[z].bouncePt) and similarSlope(trendLines[z].slope, trendline.slope, 0.5):
-                trendLines.remove(trendline)
+                if len(trendline.bouncePt) > len(trendLines[z].bouncePt):
+                    trendLines.remove(trendLines[z])
+                if len(trendline.bouncePt) < len(trendLines[z].bouncePt):
+                    trendLines.remove(trendline)
+                if len(trendline.bouncePt) == len(trendLines[z].bouncePt):
+                    print("hello")
+                    trendline.combineLines(trendLines[z])
+                    trendLines.remove(trendLines[z])
         z = z+1
     return trendLines
 
