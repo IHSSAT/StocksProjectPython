@@ -8,7 +8,16 @@ import math
 
 #ADD IN HORIZONTAL SUPPORTS AND RESISTANCE! 
 #ADD IN VOLATILITY ADJUSTMENTS!!
-
+def numDiff(a,b):
+    return ((b/a)-1)*100
+def findVolatility(pdSeries):
+    series = pdSeries.tolist()
+    x = 0
+    final = 0
+    while x < len(series)-1:
+        final = final + abs(numDiff(series[x],series[x+1]))
+        x = x+1
+    return final/x
 def makeTrendLines(pdSeries):
     locations = list(pdSeries.index.values)
     prices = pd.Series.tolist(pdSeries)
