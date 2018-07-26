@@ -6,6 +6,8 @@ import time
 import pandas as pd
 import math
 
+#ADD IN HORIZONTAL SUPPORTS AND RESISTANCE! 
+#ADD IN VOLATILITY ADJUSTMENTS!!
 
 def makeTrendLines(pdSeries):
     locations = list(pdSeries.index.values)
