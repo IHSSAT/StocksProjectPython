@@ -42,8 +42,12 @@ def makeTrendLines(pdSeries):
     return trendLines
 
 
-def trendLineIntersect(line, pdSeries, threshold=0.025, time=10):  # returns True if Trendline does NOT intersect with graph beyond threshold
+def trendLineIntersect(line, pdSeries, threshold=0.025, time=10, vola = False):  # returns True if Trendline does NOT intersect with graph beyond threshold
     completeStockData = pdSeries.tolist()
+    if vola is False:
+        volatility = findVolatility(pdSeries)
+    else:
+        volatility = vola
     loc = line.startLoc
     above = 0
     below = 0
@@ -72,8 +76,12 @@ def trendLineIntersect(line, pdSeries, threshold=0.025, time=10):  # returns Tru
     else:
         return False
 
-def signal(line, pdSeries, angle, time1=None, threshold=0.025):
+def signal(line, pdSeries, angle, time1=None, threshold=0.025, vola = False):
     completeStockData = pdSeries.tolist()
+    if vola is False:
+        volatility = findVolatility(pdSeries)
+    else:
+        volatility = vola
     if time1 is None and line.time is None:
         time = 10
     elif time1 is not None:
@@ -136,8 +144,13 @@ def similarSlope(slope1, slope2, threshold = 0.05):
     else:
         return False
 
-def filterLines(pdSeriesExtrema, trendLines, dist=0.025):
+def filterLines(pdSeries, pdSeriesExtrema, trendLines, dist=0.025, vola = False):
     locations = list(pdSeriesExtrema.index.values)
+    if vola is False:
+        volatility = findVolatility(pdSeries)
+    else:
+        volatility = vola
+    #print(volatility)
     prices = pd.Series.tolist(pdSeriesExtrema)
     z = 0
     points = []
@@ -168,10 +181,20 @@ def filterLines(pdSeriesExtrema, trendLines, dist=0.025):
                 if len(trendline.bouncePt) < len(trendLines[z].bouncePt):
                     trendLines.remove(trendline)
                 if len(trendline.bouncePt) == len(trendLines[z].bouncePt):
-                    print("hello")
                     trendline.combineLines(trendLines[z])
                     trendLines.remove(trendLines[z])
         z = z+1
+    for trendline in trendLines:
+        values = []
+        for point in trendline.bouncePt:
+            values.append(point.x)
+        if abs(numDiff(max(values), min(values))) < 0.05:
+            trendline.slope = 0
+            avg = 0
+            for element in trendline.bouncePt:
+                avg = avg + element.x
+            trendline.yint = avg/len(values)
+            trendline.lineType.append("horiz")
     return trendLines
 
 
@@ -212,6 +235,8 @@ def findExtrema(length, pdSeries, type):
         return one
     elif type == "min":
         return two
+    elif type == "all":
+        return one.combine_first(two)
     else:
         return "type not set"
 
@@ -247,3 +272,22 @@ def scan(indexFile, index):
         except:
             print('sleeping two minutes...')
             time.sleep(120)
+def horizLines(pdSeries, length = 10, type = "max", threshold=0.025, time=10): #FIX
+    trendlines = []
+    pdSeriesExtrema = findExtrema(length, pdSeries, type)
+    locations = list(pdSeriesExtrema.index.values)
+    prices = pd.Series.tolist(pdSeriesExtrema)
+    z = 0
+    points = []
+    while z < len(locations):
+        a = Point(locations[z], prices[z])
+        points.append(a)
+        z = z + 1
+    for point in points:
+        x = Line(0, point.y)
+        if trendLineIntersect(x, pdSeries, threshold, time):
+            x.lineType.append("horiz")
+            x.bouncePt.append(point)
+            x.overPoints.append(point)
+            trendlines.append(x)
+

@@ -1,4 +1,6 @@
 import math
+from typing import List
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -12,6 +14,7 @@ class Point:
 
 
 class Line(Point):
+
     def __init__(self, mslope=1, yintercept=0):
         self.slope = mslope
         self.yint = yintercept
@@ -69,17 +72,12 @@ class Line(Point):
         b = str(self.yint)
         print("y = " + a + "x + " + b)
     def plotLine(self, length = 0, show = False):
-        a = str(self.slope)
-        b = str(self.yint)
-        formula = a + "*x" + "+" + b
         if length != 0:
-            x = np.array(range(length))
+            plt.plot([0,length], [self.findY(0), self.findY(length)])
         elif self.startLoc is not None and self.endLoc is not None:
-            x = np.array(range(self.startLoc,self.endLoc+1))
+            plt.plot([self.startLoc, self.endLoc], [self.findY(self.startLoc), self.findY(self.endLoc)])
         else:
-            x = np.array(range(100))
-        y = eval(formula)
-        plt.plot(x, y)
+            plt.plot([0,300],[self.findY(0), self.findY(300)])
         if show:
             plt.show()
 
@@ -120,5 +118,5 @@ class Line(Point):
     def combineLines(self, line):
         a = (self.slope + line.slope)/2
         b = (self.yint + line.yint)/2
-        self.slope = 0
+        self.slope = a
         self.yint = b
