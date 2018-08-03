@@ -1,19 +1,13 @@
+import requests
+import pandas as pd
+from pandas.io.json import json_normalize
+def makerequest(ticker, length):
+    r = requests.get("https://api.iextrading.com/1.0/stock/" + ticker + "/chart/" + length).json()
+    j = pd.DataFrame.from_dict(json_normalize(r), orient = "columns")
+    return j
+a = open("NASD.txt")
+for line in a:
+    print(line)
+    makerequest(line[:-1].lower(), "1Y")
 
-from iexfinance import get_historical_data
-from datetime import datetime
 
-
-
-
-import Stocks
-
-
-def yolo():
-    end = datetime.now()
-    end = end.replace(hour = 0, minute =0, second = 0, microsecond = 0)
-    start = datetime(end.year, end.month, end.day-1)
-    w = open('NASD.txt')
-    for line in w:
-        df = get_historical_data(line[:len(line)-1], start=start, end=end, output_format='pandas')
-        print(line[:-1])
-yolo()
