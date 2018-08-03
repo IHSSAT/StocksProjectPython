@@ -78,6 +78,7 @@ class Pattern:
             z = z + 1
         return points
 
+    def comparepattern(self, pattern):
 
 
 

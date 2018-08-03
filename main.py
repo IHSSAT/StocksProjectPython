@@ -7,10 +7,10 @@ import Stocks
 from Patterns import Pattern
 
 param = {
-        'q': "AAPL",  # Stock symbol (ex: "AAPL")
+        'q': ".DJI",  # Stock symbol (ex: "AAPL")
         'i': "86400",  # Interval size in seconds ("86400" = 1 day intervals)
-        'x': "NASD",  # Stock exchange symbol on which stock is traded (ex: "NASD")
-        'p': "1Y"  # Period (Ex: "1Y" = 1 year)
+        'x': "INDEXDJX",  # Stock exchange symbol on which stock is traded (ex: "NASD")
+        'p': "1M"  # Period (Ex: "1Y" = 1 year)
     }
 data = get_price_data(param)
 print(data)
