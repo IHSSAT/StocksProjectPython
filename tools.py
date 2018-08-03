@@ -6,6 +6,16 @@
 # Trend Indicators
 import pandas as pd
 import numpy as np
+from math import sqrt
+
+def stddev(lst):
+    """returns the standard deviation of lst"""
+    final = 0
+    for element in lst:
+        final = final + element
+    mn = final / len(lst)
+    variance = sum([(e - mn) ** 2 for e in lst]) / len(lst)
+    return sqrt(variance)
 
 def macd(close, n_fast=12, n_slow=26, fillna=False):
     """Moving Average Convergence Divergence (MACD)

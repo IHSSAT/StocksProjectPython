@@ -1,6 +1,5 @@
 from Lines import Line
 from Lines import Point
-from googlefinance.client import get_price_data, get_prices_data, get_prices_time_data
 import Stocks
 import time
 import pandas as pd
@@ -241,37 +240,39 @@ def findExtrema(length, pdSeries, type):
         return "type not set"
 
 
-def createParam(stock, index, length="86400", period="1Y"):
-    param = {
-        'q': str(stock),
-        'i': str(length),
-        'x': str(index),
-        'p': str(period)
-    }
-    return param
+# def createParam(stock, index, length="86400", period="1Y"): #Useless right now, switched clients
+#     param = {
+#         'q': str(stock),
+#         'i': str(length),
+#         'x': str(index),
+#         'p': str(period)
+#     }
+#     return param
 
 
-def scan(indexFile, index):
-    lst1 = list()
-    idx = open(indexFile)
-    for line in idx:
-        lst1.append(line)
-    xx = 0
-    while xx < len(lst1):
-        a = lst1[xx]
-        param1 = Stocks.createParam(a[:len(a) - 1], index)
-        try:
-            data = get_price_data(param1)
-            dsclose = data['Close'].tolist()
-            # Do processing here
-            #
-            #
-            #
-            #
-            xx = xx + 1
-        except:
-            print('sleeping two minutes...')
-            time.sleep(120)
+# def scan(indexFile, index):
+#     lst1 = list()
+#     idx = open(indexFile)
+#     for line in idx:
+#         lst1.append(line)
+#     xx = 0
+#     while xx < len(lst1):
+#         a = lst1[xx]
+#         param1 = Stocks.createParam(a[:len(a) - 1], index)
+#         try:
+#             data = get_price_data(param1)
+#             dsclose = data['Close'].tolist()
+#             # Do processing here
+#             #
+#             #
+#             #
+#             #
+#             xx = xx + 1
+#         except:
+#             print('sleeping two minutes...')
+#             time.sleep(120)
+#
+#
 def horizLines(pdSeries, length = 10, type = "max", threshold=0.025, time=10): #FIX
     trendlines = []
     pdSeriesExtrema = findExtrema(length, pdSeries, type)

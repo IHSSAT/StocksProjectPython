@@ -1,2 +1,2 @@
-import ta
+import tools
 import pandas as pd

@@ -2,10 +2,12 @@ from Lines import Point
 from Lines import Line
 import matplotlib.pyplot as plt
 import pandas as pd
+from tools import stddev
 class Pattern:
 
     def __init__(self, pointsList, ratio = False):
         self.movelenth = len(pointsList) -1
+        self.pointsList = pointsList
         a = []
         b = []
         for point in pointsList:
@@ -16,11 +18,12 @@ class Pattern:
             for point in pointsList:
                 if x == point.x:
                     b.append(point.y)
-
         self.firstmove = (b[1] - b[0])/b[0]
-        self.enddiff = (b[-1] - b[0])/b[0]
-        self.minimumdiff = (min(b) - b[0])/b[0]
-        self.maximumdiff = (max(b) - b[0])/b[0]
+        self.enddiff = (b[-1] - b[0]) / b[0]
+        self.minimumdiff = (min(b) - b[0]) / b[0]
+        self.maximumdiff = (max(b) - b[0]) / b[0]
+
+
 
         if ratio:
             rat = abs(self.firstmove)
@@ -39,6 +42,7 @@ class Pattern:
         while x < len(self.moves):
             self.ratiomoves.append(((self.moves[x][0]/self.moves[0][0]), (self.moves[x][1]/abs(self.moves[0][1])))) #reports each move in relationship to the first move
             x = x+1
+        self.type = "None"
     def plotPattern(self, ratio = True, plot = False):
         lines = []
         if ratio:
@@ -78,7 +82,21 @@ class Pattern:
             z = z + 1
         return points
 
-    def comparepattern(self, pattern):
+    def comparePattern(self, pattern, ratio = True):
+        if ratio:
+            a = self.ratiomoves
+            b = pattern.ratiomoves
+        else:
+            a = self.moves
+            b = pattern.moves
+        x = 0
+        while x < len(a):
+            if (a[x][0])/(b[x][0]) > 1.2 or (a[x][0])/(b[x][0]) < 0.8:
+                return False
+            if (a[x][1])/(b[x][1]) > 1.2 or (a[x][1])/(b[x][1]) < 0.8:
+                return False
+            x = x+1
+        return True
 
 
 
