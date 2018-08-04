@@ -23,9 +23,9 @@ def stupid():
             b.flush()
             print(stock[:-1] + "wroooooong")
             continue
-        if len(df['close']) == 0:
+        if len(df['close']) < 3:
             continue
         c.write(stock[:-1] + ": " + str(Stocks.findVolatility(df['close'])) + "\n")
         c.flush()
         print(stock[:-1])
-threading.Thread(target=stupid()).start()
+stupid()
