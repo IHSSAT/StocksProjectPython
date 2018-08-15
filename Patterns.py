@@ -5,7 +5,7 @@ import pandas as pd
 from tools import stddev
 class Pattern:
 
-    def __init__(self, pointsList, ratio = False):
+    def __init__(self, pointsList):
         self.movelenth = len(pointsList) -1
         self.pointsList = pointsList
         a = []
@@ -22,16 +22,6 @@ class Pattern:
         self.enddiff = (b[-1] - b[0]) / b[0]
         self.minimumdiff = (min(b) - b[0]) / b[0]
         self.maximumdiff = (max(b) - b[0]) / b[0]
-
-
-
-        if ratio:
-            rat = abs(self.firstmove)
-            self.firstmove = self.firstmove/rat
-            self.enddiff = self.enddiff/rat
-            self.minimumdiff = self.minimumdiff/rat
-            self.maximumdiff = self.maximumdiff/rat
-
         self.moves = []
         x = 0
         while x < len(pointsList) - 1:
@@ -91,12 +81,51 @@ class Pattern:
             b = pattern.moves
         x = 0
         while x < len(a):
-            if (a[x][0])/(b[x][0]) > 1.2 or (a[x][0])/(b[x][0]) < 0.8:
+            if (a[x][0])/(b[x][0]) > 1.2 or (a[x][0])/(b[x][0]) < 0.8: #FINE TUNE
                 return False
             if (a[x][1])/(b[x][1]) > 1.2 or (a[x][1])/(b[x][1]) < 0.8:
                 return False
             x = x+1
         return True
+
+    def limitpattern(self, length, where = "end"): #If where is an integer, where is the start of the pattern. Length is in "moves", not "points
+        if where == "end":
+            return Pattern(self.pointsList[len(self.pointsList) - length - 1:])
+        elif where == "beginning":
+            return Pattern(self.pointsList[:length + 1])
+        else:
+            return Pattern(self.pointsList[where:where+length+1])
+
+    def combinepattern(self, pattern, ratio = True):
+        x = 0
+        while x < len(self.ratiomoves):
+            
+    def reportMoveDiff(self, pattern): #USES RATIOMOVES
+        final = []
+        x = 0
+        while x < len(self.ratiomoves):
+            final.append((self.ratiomoves[x][0]/pattern.ratiomoves[x][0], self.ratiomoves[x][1]/pattern.ratiomoves[x][1]))
+            x = x+1
+        return final
+    def patternInPattern(self, pattern, ratio = True): #checks if pattern in self if in pattern in "pattern". Returns a list [pattern, # times]
+        if self.movelenth > pattern.movelenth
+            return [None, 0]
+        if self.movelenth == pattern.movelenth:
+            if self.comparePattern(pattern, ratio):
+                return []
+        else:
+            x = 0
+            total = 0
+            patterns = []
+            while x < pattern.movelenth - self.movelenth + 1:
+                if self.comparePattern(pattern.limitpattern(length = self.movelenth, where = x), ratio):
+                    total = total + 1
+                    patterns.append(self)
+                    patterns.append(pattern.limitpattern(length = self.movelenth, where = x))
+                x = x + 1
+
+
+
 
 
 
