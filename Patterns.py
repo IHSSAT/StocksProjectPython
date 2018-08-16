@@ -96,19 +96,16 @@ class Pattern:
         else:
             return Pattern(self.pointsList[where:where+length+1])
 
-    def combinepattern(self, pattern, ratio = True):
-        x = 0
-        while x < len(self.ratiomoves):
-            
-    def reportMoveDiff(self, pattern): #USES RATIOMOVES
+    def reportMoveDiff(self, pattern):
         final = []
         x = 0
         while x < len(self.ratiomoves):
             final.append((self.ratiomoves[x][0]/pattern.ratiomoves[x][0], self.ratiomoves[x][1]/pattern.ratiomoves[x][1]))
             x = x+1
         return final
+
     def patternInPattern(self, pattern, ratio = True): #checks if pattern in self if in pattern in "pattern". Returns a list [pattern, # times]
-        if self.movelenth > pattern.movelenth
+        if self.movelenth > pattern.movelenth:
             return [None, 0]
         if self.movelenth == pattern.movelenth:
             if self.comparePattern(pattern, ratio):
